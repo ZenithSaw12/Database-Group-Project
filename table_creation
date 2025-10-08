@@ -1,0 +1,84 @@
+CREATE TABLE account(
+	account_id INT PRIMARY KEY,
+	first_name VARCHAR(25),
+	last_name VARCHAR(25),
+	email VARCHAR(50),
+	password VARCHAR(50),
+	phone_number char(12)
+);
+
+CREATE TABLE address(
+	address_id INT PRIMARY KEY,
+	street_address VARCHAR(50),
+	postal_code CHAR(6),
+	city VARCHAR(20),
+	province CHAR(2)
+);
+
+CREATE TABLE credit_card(
+	card_id INT PRIMARY KEY,
+	account_id INT,
+	card_number NUMERIC(16),
+	expiry_date DATE,
+	security_digits NUMERIC(3),
+	card_name VARCHAR(50),
+	card_type VARCHAR(20),
+	CONSTRAINT fk_credit_card_account_id FOREIGN KEY(account_id) REFERENCES account(account_id) ON DELETE CASCADE
+);
+
+CREATE TABLE property_listing(
+	listing_id INT PRIMARY KEY,
+	owner_id INT,
+	address_id INT,
+	property_type VARCHAR(25),
+	bedroom_count NUMERIC(2),
+	bathroom_count NUMERIC(2),
+	area NUMERIC(5),
+	year_built NUMERIC(4),
+	description VARCHAR(200),
+	status VARCHAR(20),
+	price NUMERIC(15,2),
+	CONSTRAINT fk_property_owner_id FOREIGN KEY(owner_id) REFERENCES account(account_id) ON DELETE CASCADE,
+	CONSTRAINT fk_property_address_id FOREIGN KEY(address_id) REFERENCES address(address_id) ON DELETE CASCADE
+);
+
+CREATE TABLE property_listing_image(
+	listing_id INT,
+	image VARCHAR(200),
+	CONSTRAINT fk_property_image_listing_id FOREIGN KEY(listing_id) REFERENCES property_listing(listing_id) ON DELETE CASCADE,
+);
+
+CREATE TABLE favourite(
+	account_id INT,
+	listing_id INT,
+	condition NUMERIC(1),
+	location NUMERIC(1),
+	nearby NUMERIC(1),
+	schools NUMERIC(1),
+	taxes NUMERIC(1),
+	notes VARCHAR(200),
+	CONSTRAINT fk_favourites_account_id FOREIGN KEY(account_id) REFERENCES account(account_id) ON DELETE CASCADE,
+	CONSTRAINT fk_favourites_listing_id FOREIGN KEY(listing_id) REFERENCES property_listing(listing_id) ON DELETE NO ACTION
+);
+
+CREATE TABLE message(
+	message_id INT PRIMARY KEY,
+	account_id INT,
+	listing_id INT,
+	message_text VARCHAR(1000),
+	timestamp DATE,
+	CONSTRAINT fk_message_account_id FOREIGN KEY(account_id) REFERENCES account(account_id) ON DELETE NO ACTION,
+	CONSTRAINT fk_message_listing_id FOREIGN KEY(listing_id) REFERENCES property_listing(listing_id) ON DELETE NO ACTION
+);
+
+CREATE TABLE purchase(
+	purchase_id INT PRIMARY KEY,
+	buyer_id INT,
+	listing_id INT,
+	payment_type VARCHAR(20),
+	billing_address_id INT,
+	card_id INT NULL,
+	CONSTRAINT fk_purchase_buyer_id FOREIGN KEY(buyer_id) REFERENCES account(account_id) ON DELETE NO ACTION,
+	CONSTRAINT fk_purchase_listing_id FOREIGN KEY(listing_id) REFERENCES property_listing(listing_id) ON DELETE NO ACTION,
+	CONSTRAINT fk_purchase_card_id FOREIGN KEY(card_id) REFERENCES credit_card(card_id) ON DELETE SET NULL,
+);
